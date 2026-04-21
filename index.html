@@ -180,6 +180,9 @@ nav{position:sticky;top:0;z-index:100;background:rgba(250,250,248,.94);backdrop-
 .ccal{font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:2px;text-transform:uppercase;letter-spacing:.05em;}
 .ccav{font-size:13px;font-weight:500;}
 .cnote{margin-top:20px;background:var(--al);border-radius:var(--r);padding:16px 18px;font-size:13px;color:var(--accent);line-height:1.7;}
+.contact-edit-btn{display:none;margin-top:12px;font-size:12px;padding:6px 14px;}
+.contact-edit-btn.show{display:inline-block;}
+.sync-badge{display:inline-block;font-family:var(--mono);font-size:9px;padding:2px 7px;border-radius:20px;background:var(--al);color:var(--accent);margin-left:6px;vertical-align:middle;}
 footer{background:var(--surface);border-top:1px solid var(--border);padding:14px 24px;text-align:center;font-size:11px;color:var(--text3);font-family:var(--mono);}
 .ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;align-items:center;justify-content:center;padding:16px;}
 .ov.open{display:flex;}
@@ -209,13 +212,23 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:14px
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
 @media(max-width:700px){
 .nlinks{display:none;}.hburg{display:flex;}
-.hero{grid-template-columns:1fr;padding:28px 16px 24px;}.ava{display:none;}
+.hero{grid-template-columns:1fr;padding:28px 16px 24px;gap:20px;}
+.hero>div:last-child{display:flex;flex-direction:column;align-items:center;}
+.ava{width:110px;height:110px;font-size:30px;}
 .agrid,.ccg,.fg2{grid-template-columns:1fr;}
 .ig{grid-template-columns:1fr;}
 .dp{flex-direction:column;height:auto;}
 .dsb{width:100%;min-width:unset;max-height:260px;}
 .dm{min-height:380px;}
 .tp,.prp,.jp,.cpg,.cop{padding:22px 16px;}
+.hact{gap:6px;}
+.hact .bp,.hact .bs{padding:8px 14px;font-size:12px;}
+.hname{font-size:32px;}
+.sstrip{padding:20px 16px;}
+.astrip{padding:20px 16px;}
+.ccg{gap:8px;}
+.cca{padding:12px;}
+#ava-hint{display:block!important;font-size:11px;color:var(--text3);margin-top:4px;text-align:center;}
 }
 </style>
 </head>
@@ -422,14 +435,10 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:14px
 <div class="page" id="page-contact">
   <div class="cop">
     <h1 class="ph">Get in touch</h1>
-    <p class="ps">Open to entry-level roles in medical device engineering, clinical engineering, and R&D.</p>
-    <div class="ccg">
-      <a class="cca" href="mailto:your@email.com"><div class="ccai">✉️</div><div class="ccal">Email</div><div class="ccav">your@email.com</div></a>
-      <a class="cca" href="https://linkedin.com/in/yourprofile" target="_blank"><div class="ccai">💼</div><div class="ccal">LinkedIn</div><div class="ccav">linkedin.com/in/yourprofile</div></a>
-      <a class="cca" href="#"><div class="ccai">📍</div><div class="ccal">Location</div><div class="ccav">Your city, Country</div></a>
-      <a class="cca" href="https://github.com/sidimuhammed" target="_blank"><div class="ccai">🐙</div><div class="ccal">GitHub</div><div class="ccav">github.com/sidimuhammed</div></a>
-    </div>
-    <div class="cnote">Open to opportunities in medical device engineering, clinical engineering, and R&D. Always happy to connect with engineers and clinicians in the field.</div>
+    <p class="ps" id="contact-tagline">Open to entry-level roles in medical device engineering, clinical engineering, and R&D.</p>
+    <div class="ccg" id="contact-grid"></div>
+    <div class="cnote" id="contact-note">Open to opportunities in medical device engineering, clinical engineering, and R&D. Always happy to connect with engineers and clinicians in the field.</div>
+    <button class="bs contact-edit-btn" id="contact-edit-btn" onclick="openContactEdit()">✏️ Edit contact info</button>
   </div>
 </div>
 
@@ -520,15 +529,36 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:14px
   </div>
 </div>
 
+<!-- CONTACT EDIT MODAL -->
+<div class="ov" id="contact-ov">
+  <div class="mo" style="max-width:420px">
+    <h2>Edit contact info</h2>
+    <div class="fr"><label>Email</label><input type="text" id="ct-email" placeholder="your@email.com"></div>
+    <div class="fr"><label>LinkedIn URL</label><input type="text" id="ct-linkedin" placeholder="https://linkedin.com/in/yourprofile"></div>
+    <div class="fr"><label>Location</label><input type="text" id="ct-location" placeholder="City, Country"></div>
+    <div class="fr"><label>GitHub URL</label><input type="text" id="ct-github" placeholder="https://github.com/username"></div>
+    <div class="fr"><label>Phone (optional)</label><input type="text" id="ct-phone" placeholder="+212 6xx xxx xxx"></div>
+    <div class="fr"><label>Bio tagline</label><input type="text" id="ct-tagline" placeholder="Open to entry-level roles..."></div>
+    <div class="fr"><label>Note / footer message</label><textarea id="ct-note" style="min-height:70px"></textarea></div>
+    <div class="ma"><button class="bcan" onclick="closeContactEdit()">Cancel</button><button class="bsave" onclick="saveContactEdit()">Save</button></div>
+  </div>
+</div>
+
 <script>
+/* ── STORAGE HELPERS (persistent cross-device sync) ── */
+const STORE_KEYS={notes:'me_notes2',projs:'me_projs2',devs:'me_devs4',certs:'me_certs2',contact:'me_contact',photo:'me_photo',cv:'me_cv',cv_n:'me_cv_n',creds_u:'me_u',creds_p:'me_p'};
+async function storeSet(key,val){try{if(window.storage){await window.storage.set(key,typeof val==='string'?val:JSON.stringify(val));}else{localStorage.setItem(key,typeof val==='string'?val:JSON.stringify(val));}}catch(e){localStorage.setItem(key,typeof val==='string'?val:JSON.stringify(val));}}
+async function storeGet(key){try{if(window.storage){const r=await window.storage.get(key);return r?r.value:null;}else{return localStorage.getItem(key);}}catch(e){return localStorage.getItem(key);}}
+async function storeGetJSON(key,fallback){const v=await storeGet(key);try{return v?JSON.parse(v):fallback;}catch(e){return fallback;}}
+
 /* AUTH */
 const DU='sidimuhammed',DP='sidi2025';
 let isAdmin=false;
-const gu=()=>localStorage.getItem('me_u')||DU;
-const gp=()=>localStorage.getItem('me_p')||DP;
+async function gu(){return await storeGet(STORE_KEYS.creds_u)||DU;}
+async function gp(){return await storeGet(STORE_KEYS.creds_p)||DP;}
 function handleAdmin(){if(isAdmin){logout();return;}document.getElementById('pin-ov').classList.add('open');document.getElementById('pp').value='';document.getElementById('pu').value='';document.getElementById('perr').textContent='';setTimeout(()=>document.getElementById('pu').focus(),80);}
 function closePinOv(){document.getElementById('pin-ov').classList.remove('open');}
-function doPin(){const u=document.getElementById('pu').value.trim(),p=document.getElementById('pp').value;if(u===gu()&&p===gp()){isAdmin=true;closePinOv();applyAdmin();}else{document.getElementById('perr').textContent='Incorrect username or PIN.';document.getElementById('pp').value='';}}
+async function doPin(){const u=document.getElementById('pu').value.trim(),p=document.getElementById('pp').value;if(u===await gu()&&p===await gp()){isAdmin=true;closePinOv();applyAdmin();}else{document.getElementById('perr').textContent='Incorrect username or PIN.';document.getElementById('pp').value='';}}
 function logout(){isAdmin=false;applyAdmin();}
 function applyAdmin(){
   const btn=document.getElementById('admin-btn');
@@ -538,11 +568,12 @@ function applyAdmin(){
   document.getElementById('badd').style.display=isAdmin?'block':'none';
   document.getElementById('btn-note').style.display=isAdmin?'inline-block':'none';
   document.getElementById('ava-hint').style.display=isAdmin?'block':'none';
-  renderDevList();renderProj();renderJournal();renderCerts();
+  document.getElementById('contact-edit-btn').classList.toggle('show',isAdmin);
+  renderDevList();renderProj();renderJournal();renderCerts();renderContact();
 }
 function openCreds(){document.getElementById('cur-p').value='';document.getElementById('new-u').value='';document.getElementById('new-p').value='';document.getElementById('con-p').value='';document.getElementById('cerr').textContent='';document.getElementById('creds-ov').classList.add('open');}
 function closeCreds(){document.getElementById('creds-ov').classList.remove('open');}
-function saveCreds(){const c=document.getElementById('cur-p').value,nu=document.getElementById('new-u').value.trim(),np=document.getElementById('new-p').value,cp=document.getElementById('con-p').value;if(c!==gp()){document.getElementById('cerr').textContent='Current PIN incorrect.';return;}if(!nu||!np){document.getElementById('cerr').textContent='All fields required.';return;}if(np!==cp){document.getElementById('cerr').textContent='New PINs do not match.';return;}localStorage.setItem('me_u',nu);localStorage.setItem('me_p',np);closeCreds();alert('Credentials updated!');}
+async function saveCreds(){const c=document.getElementById('cur-p').value,nu=document.getElementById('new-u').value.trim(),np=document.getElementById('new-p').value,cp=document.getElementById('con-p').value;if(c!==await gp()){document.getElementById('cerr').textContent='Current PIN incorrect.';return;}if(!nu||!np){document.getElementById('cerr').textContent='All fields required.';return;}if(np!==cp){document.getElementById('cerr').textContent='New PINs do not match.';return;}await storeSet(STORE_KEYS.creds_u,nu);await storeSet(STORE_KEYS.creds_p,np);closeCreds();alert('Credentials updated!');}
 
 /* NAV */
 function showPage(p){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.nl,.ml').forEach(x=>x.classList.remove('active'));document.getElementById('page-'+p).classList.add('active');document.getElementById('nl-'+p)?.classList.add('active');document.getElementById('ml-'+p)?.classList.add('active');if(p==='devices'){renderDevList();updateDCount();}if(p==='projects')renderProj();if(p==='journal')renderJournal();if(p==='certs')renderCerts();}
@@ -550,10 +581,10 @@ function toggleMenu(){document.getElementById('mmenu').classList.toggle('open');
 
 /* PHOTO & CV */
 function handleAva(){if(!isAdmin)return;document.getElementById('photo-in').click();}
-function uploadPhoto(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{const av=document.getElementById('ava');av.innerHTML=`<img src="${ev.target.result}" alt="photo">`;localStorage.setItem('me_photo',ev.target.result);};r.readAsDataURL(f);}
-function handleCV(){if(isAdmin){document.getElementById('cv-in').click();return;}const cv=localStorage.getItem('me_cv');if(cv){const a=document.createElement('a');a.href=cv;a.download='Sidi_Mohamed_CV.pdf';a.click();}else alert('No CV uploaded yet. Log in as admin to upload.');}
-function uploadCV(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{localStorage.setItem('me_cv',ev.target.result);localStorage.setItem('me_cv_n',f.name);document.getElementById('cv-hint').textContent='CV: '+f.name;alert('CV uploaded! Visitors can now download it.');};r.readAsDataURL(f);}
-function loadSaved(){const ph=localStorage.getItem('me_photo');if(ph){const av=document.getElementById('ava');av.innerHTML=`<img src="${ph}" alt="photo">`;}const cn=localStorage.getItem('me_cv_n');if(cn)document.getElementById('cv-hint').textContent='CV: '+cn;}
+function uploadPhoto(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=async ev=>{const av=document.getElementById('ava');av.innerHTML=`<img src="${ev.target.result}" alt="photo">`;await storeSet(STORE_KEYS.photo,ev.target.result);};r.readAsDataURL(f);}
+function handleCV(){if(isAdmin){document.getElementById('cv-in').click();return;}storeGet(STORE_KEYS.cv).then(cv=>{if(cv){const a=document.createElement('a');a.href=cv;a.download='Sidi_Mohamed_CV.pdf';a.click();}else alert('No CV uploaded yet. Log in as admin to upload.');});}
+function uploadCV(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=async ev=>{await storeSet(STORE_KEYS.cv,ev.target.result);await storeSet(STORE_KEYS.cv_n,f.name);document.getElementById('cv-hint').textContent='CV: '+f.name;alert('CV uploaded! Visitors can now download it.');};r.readAsDataURL(f);}
+async function loadSaved(){const ph=await storeGet(STORE_KEYS.photo);if(ph){const av=document.getElementById('ava');av.innerHTML=`<img src="${ph}" alt="photo">`;}const cn=await storeGet(STORE_KEYS.cv_n);if(cn)document.getElementById('cv-hint').textContent='CV: '+cn;}
 
 /* TOOLS */
 function doConv(){const v=parseFloat(document.getElementById('cv-v').value),t=document.getElementById('cv-f').value,el=document.getElementById('cv-r');if(isNaN(v)){el.textContent='Enter a value above';el.className='rb rb-info';return;}const m={mmhg_kpa:[v*.133322,'kPa'],kpa_mmhg:[v/.133322,'mmHg'],mmhg_cmh2o:[v*1.35951,'cmH2O'],cmh2o_mmhg:[v/1.35951,'mmHg'],kpa_cmh2o:[v*10.1972,'cmH2O'],c_f:[v*9/5+32,'°F'],f_c:[(v-32)*5/9,'°C'],c_k:[v+273.15,'K'],lmin_mls:[v*1000/60,'mL/s'],mls_lmin:[v*60/1000,'L/min']};const[r,u]=m[t]||[null,''];el.textContent=r!=null?`${r.toFixed(3)} ${u}`:'—';el.className='rb rb-info';}
@@ -577,9 +608,8 @@ const DD=[{id:1,icon:"❤️",name:"ECG Machine (12-lead)",deviceClass:"IIa",cat
 {id:9,icon:"💊",name:"Syringe Driver / PCA",deviceClass:"IIb",category:"Drug delivery",principle:"Stepper motor advances plunger at programmed rate. PCA: patient triggers bolus within lockout interval.",params:[["Flow accuracy","±3–5%"],["Bolus lockout","5–30 min typical"],["Occlusion detection","Pressure-based"]],standards:["IEC 60601-2-24","ISO 13485"],alarms:["Occlusion","Syringe empty","Size mismatch","Motor stall"],maintenance:[["Per use","Confirm syringe size, tamper seal"],["Annual","Rate accuracy, alarm function"]],watchout:"Syringe size mismatch is most dangerous — pump calculates flow from declared diameter. Always physically confirm. Independent double-check mandatory."},
 {id:10,icon:"📡",name:"Patient Monitor (multiparameter)",deviceClass:"IIb",category:"Monitoring",principle:"Integrates ECG, SpO2, NIBP, temp, and respiration (thoracic impedance via ECG leads) into one display.",params:[["ECG sampling","500–1000 Hz"],["SpO2 sampling","60–100 Hz"],["Display refresh","≥25 Hz"],["Storage","24–72 hrs"]],standards:["IEC 60601-1","IEC 60601-1-8 (alarms)"],alarms:["Per-parameter thresholds","Central station loss","Low battery","Sensor fault"],maintenance:[["Daily","Visual check, alarm test"],["Annual","Full calibration, electrical safety, network"]],watchout:"Alarm fatigue: >90% of alarms are clinically irrelevant. Always personalise limits. Never leave factory defaults."}];
 let devs=[],curDev=null,editDev=null;
-function loadDevs(){try{const s=localStorage.getItem('me_devs4');devs=s?JSON.parse(s):JSON.parse(JSON.stringify(DD));}catch(e){devs=JSON.parse(JSON.stringify(DD));}}
-function saveDevs(){try{localStorage.setItem('me_devs4',JSON.stringify(devs));}catch(e){}}
-function updateDCount(){document.getElementById('dcount').textContent=devs.length+' devices';}
+async function loadDevs(){devs=await storeGetJSON(STORE_KEYS.devs,JSON.parse(JSON.stringify(DD)));}
+async function saveDevs(){await storeSet(STORE_KEYS.devs,devs);}function updateDCount(){document.getElementById('dcount').textContent=devs.length+' devices';}
 function filterDevs(){renderDevList(document.getElementById('dsearch').value);}
 function renderDevList(f=''){
   const el=document.getElementById('dlist'),cats={};
@@ -591,49 +621,99 @@ function renderDevList(f=''){
 function showDev(id){curDev=id;const d=devs.find(x=>x.id===id);if(!d)return;document.querySelector('.dw').style.display='none';const det=document.getElementById('ddet');det.classList.add('vis');const stds=d.standards.map(s=>`<span class="dbg bgs">${s}</span>`).join(' ');const params=d.params.map(([k,v])=>`<li><span class="pk">${k}</span><span>${v}</span></li>`).join('');const alarms=d.alarms.map(a=>`<li>${a}</li>`).join('');const maint=d.maintenance.map(([f,t])=>`<li><span class="mf">${f}</span><span>${t}</span></li>`).join('');const ab=isAdmin?`<div class="dda"><button class="be" onclick="openDevModal(${d.id})">Edit</button><button class="bdl" onclick="deleteDev(${d.id})">Delete</button></div>`:'';det.innerHTML=`<div class="ddh"><div class="ddic">${d.icon}</div><div style="flex:1"><div class="ddt">${d.name}</div><div style="margin-top:3px"><span class="dbg bg${d.deviceClass}">Class ${d.deviceClass}</span><span class="dbg bgs">${d.category}</span>${stds}</div></div>${ab}</div><div class="ig"><div class="ic full ok"><div class="icl">Working principle</div><div class="icv">${d.principle}</div></div><div class="ic"><div class="icl">Key parameters</div><ul class="pl">${params}</ul></div><div class="ic warn"><div class="icl">Critical alarms</div><ul class="al">${alarms}</ul></div><div class="ic full"><div class="icl">Maintenance</div><ul class="ml2">${maint}</ul></div><div class="ic full danger"><div class="icl">Watch out for</div><div class="icv">${d.watchout}</div></div></div>`;renderDevList(document.getElementById('dsearch').value);}
 function openDevModal(id=null){if(!isAdmin){alert('Admin access required.');return;}editDev=id;const d=id?devs.find(x=>x.id===id):null;document.getElementById('dev-mt').textContent=d?'Edit device':'Add device';['nm','ic','ca','pr','st','wo'].forEach(k=>document.getElementById('f-'+k).value=d?{nm:d.name,ic:d.icon,ca:d.category,pr:d.principle,st:d.standards.join(', '),wo:d.watchout}[k]:'');document.getElementById('f-cl').value=d?d.deviceClass:'IIa';document.getElementById('f-pa').value=d?d.params.map(([k,v])=>`${k}: ${v}`).join('\n'):'';document.getElementById('f-al').value=d?d.alarms.join('\n'):'';document.getElementById('f-ma').value=d?d.maintenance.map(([f,t])=>`${f}: ${t}`).join('\n'):'';document.getElementById('dev-ov').classList.add('open');}
 function closeDevOv(){document.getElementById('dev-ov').classList.remove('open');editDev=null;}
-function saveDev(){const nm=document.getElementById('f-nm').value.trim();if(!nm){alert('Name required.');return;}const pl=s=>s.split('\n').filter(l=>l.trim()).map(l=>{const i=l.indexOf(':');return i>-1?[l.slice(0,i).trim(),l.slice(i+1).trim()]:[l.trim(),''];});const d={id:editDev||(devs.length?Math.max(...devs.map(x=>x.id))+1:1),icon:document.getElementById('f-ic').value||'🔬',name:nm,deviceClass:document.getElementById('f-cl').value,category:document.getElementById('f-ca').value||'General',principle:document.getElementById('f-pr').value,params:pl(document.getElementById('f-pa').value),standards:document.getElementById('f-st').value.split(',').map(s=>s.trim()).filter(Boolean),alarms:document.getElementById('f-al').value.split('\n').map(s=>s.trim()).filter(Boolean),maintenance:pl(document.getElementById('f-ma').value),watchout:document.getElementById('f-wo').value};if(editDev){const i=devs.findIndex(x=>x.id===editDev);devs[i]=d;}else devs.push(d);saveDevs();closeDevOv();renderDevList();updateDCount();showDev(d.id);}
-function deleteDev(id){if(!isAdmin)return;if(!confirm('Delete device?'))return;devs=devs.filter(x=>x.id!==id);saveDevs();curDev=null;document.querySelector('.dw').style.display='';document.getElementById('ddet').classList.remove('vis');renderDevList();updateDCount();}
+async function saveDev(){const nm=document.getElementById('f-nm').value.trim();if(!nm){alert('Name required.');return;}const pl=s=>s.split('\n').filter(l=>l.trim()).map(l=>{const i=l.indexOf(':');return i>-1?[l.slice(0,i).trim(),l.slice(i+1).trim()]:[l.trim(),''];});const d={id:editDev||(devs.length?Math.max(...devs.map(x=>x.id))+1:1),icon:document.getElementById('f-ic').value||'🔬',name:nm,deviceClass:document.getElementById('f-cl').value,category:document.getElementById('f-ca').value||'General',principle:document.getElementById('f-pr').value,params:pl(document.getElementById('f-pa').value),standards:document.getElementById('f-st').value.split(',').map(s=>s.trim()).filter(Boolean),alarms:document.getElementById('f-al').value.split('\n').map(s=>s.trim()).filter(Boolean),maintenance:pl(document.getElementById('f-ma').value),watchout:document.getElementById('f-wo').value};if(editDev){const i=devs.findIndex(x=>x.id===editDev);devs[i]=d;}else devs.push(d);await saveDevs();closeDevOv();renderDevList();updateDCount();showDev(d.id);}
+async function deleteDev(id){if(!isAdmin)return;if(!confirm('Delete device?'))return;devs=devs.filter(x=>x.id!==id);await saveDevs();curDev=null;document.querySelector('.dw').style.display='';document.getElementById('ddet').classList.remove('vis');renderDevList();updateDCount();}
 
 /* PROJECTS */
 const DP2=[{id:1,icon:'🔬',title:'Your thesis title here',tag:'Final year thesis',desc:'Replace with your thesis description — the problem, what you built, and the key result.',link:''},{id:2,icon:'🏥',title:'Biomedical device maintenance',tag:'Internship',desc:'Maintenance and acceptance testing of clinical devices including patient monitors, infusion pumps, and ventilators.',link:''},{id:3,icon:'💻',title:'MedEng Reference Tool',tag:'Personal project',desc:'Full medical device reference web app with 10 devices, 8 engineering calculators, learning journal, and certifications tracker. Hosted on GitHub Pages.',link:'https://github.com/sidimuhammed/medengref'}];
 let projs=[],editProj=null;
-function loadProjs(){try{const s=localStorage.getItem('me_projs2');projs=s?JSON.parse(s):JSON.parse(JSON.stringify(DP2));}catch(e){projs=JSON.parse(JSON.stringify(DP2));}}
-function saveProjs(){try{localStorage.setItem('me_projs2',JSON.stringify(projs));}catch(e){}}
+async function loadProjs(){projs=await storeGetJSON(STORE_KEYS.projs,JSON.parse(JSON.stringify(DP2)));}
+async function saveProjs(){await storeSet(STORE_KEYS.projs,projs);}
 function renderProj(){const g=document.getElementById('prg');let h=projs.map(p=>`<div class="prc"><div class="pri">${p.icon||'🔬'}</div><div class="prb"><span class="prtg">${p.tag}</span><div class="prt">${p.title}</div><div class="prd">${p.desc}</div>${p.link?`<a href="${p.link}" target="_blank" style="font-size:11px;color:var(--a2);margin-top:5px;display:inline-block">View →</a>`:''} ${isAdmin?`<div style="display:flex;gap:5px;margin-top:8px"><button class="be" onclick="openProjOv(${p.id})">Edit</button><button class="bdl" onclick="delProj(${p.id})">Delete</button></div>`:''}</div></div>`).join('');if(isAdmin)h+=`<div class="pradd" onclick="openProjOv()"><span style="font-size:22px">+</span><span>Add project</span></div>`;g.innerHTML=h;}
 function openProjOv(id=null){if(!isAdmin)return;editProj=id;const p=id?projs.find(x=>x.id===id):null;document.getElementById('proj-mt').textContent=p?'Edit project':'Add project';document.getElementById('pj-t').value=p?p.title:'';document.getElementById('pj-tag').value=p?p.tag:'';document.getElementById('pj-ic').value=p?p.icon:'🔬';document.getElementById('pj-d').value=p?p.desc:'';document.getElementById('pj-l').value=p?p.link:'';document.getElementById('proj-ov').classList.add('open');}
 function closeProjOv(){document.getElementById('proj-ov').classList.remove('open');editProj=null;}
-function saveProj(){const t=document.getElementById('pj-t').value.trim();if(!t){alert('Title required.');return;}const p={id:editProj||(projs.length?Math.max(...projs.map(x=>x.id))+1:1),title:t,tag:document.getElementById('pj-tag').value||'Project',icon:document.getElementById('pj-ic').value||'🔬',desc:document.getElementById('pj-d').value,link:document.getElementById('pj-l').value};if(editProj){const i=projs.findIndex(x=>x.id===editProj);projs[i]=p;}else projs.push(p);saveProjs();closeProjOv();renderProj();}
-function delProj(id){if(!isAdmin)return;if(!confirm('Delete project?'))return;projs=projs.filter(x=>x.id!==id);saveProjs();renderProj();}
+async function saveProj(){const t=document.getElementById('pj-t').value.trim();if(!t){alert('Title required.');return;}const p={id:editProj||(projs.length?Math.max(...projs.map(x=>x.id))+1:1),title:t,tag:document.getElementById('pj-tag').value||'Project',icon:document.getElementById('pj-ic').value||'🔬',desc:document.getElementById('pj-d').value,link:document.getElementById('pj-l').value};if(editProj){const i=projs.findIndex(x=>x.id===editProj);projs[i]=p;}else projs.push(p);await saveProjs();closeProjOv();renderProj();}
+async function delProj(id){if(!isAdmin)return;if(!confirm('Delete project?'))return;projs=projs.filter(x=>x.id!==id);await saveProjs();renderProj();}
 
 /* JOURNAL */
 let notes=[],editNote=null;
-function loadNotes(){try{const s=localStorage.getItem('me_notes2');notes=s?JSON.parse(s):[];}catch(e){notes=[];}}
-function saveNotes(){try{localStorage.setItem('me_notes2',JSON.stringify(notes));}catch(e){}}
+async function loadNotes(){notes=await storeGetJSON(STORE_KEYS.notes,[]);}
+async function saveNotes(){await storeSet(STORE_KEYS.notes,notes);}
 function renderJournal(){const g=document.getElementById('jg'),f=document.getElementById('nfilter').value,filtered=f?notes.filter(n=>n.cat===f):notes;if(!filtered.length){g.innerHTML=`<div class="empty"><div class="empty-icon">✍️</div><p style="font-size:13px;font-weight:500;color:var(--text2);margin-bottom:4px">No notes yet</p><p style="font-size:12px">Log in as admin to start your learning journal.</p></div>`;return;}g.innerHTML=[...filtered].reverse().map(n=>`<div class="jc"><div class="jct"><div class="jcm"><div class="jcti">${n.title}<span class="jctg">${n.cat}</span></div><div class="jcd">${n.date}</div></div>${isAdmin?`<div style="display:flex;gap:5px"><button class="be" onclick="openNoteModal(${n.id})">Edit</button><button class="bdl" onclick="delNote(${n.id})">Delete</button></div>`:''}</div><div class="jcb">${n.body}</div></div>`).join('');}
 function openNoteModal(id=null){if(!isAdmin)return;editNote=id;const n=id?notes.find(x=>x.id===id):null;document.getElementById('note-mt').textContent=n?'Edit note':'Add note';document.getElementById('n-t').value=n?n.title:'';document.getElementById('n-c').value=n?n.cat:'Device';document.getElementById('n-b').value=n?n.body:'';document.getElementById('note-ov').classList.add('open');}
 function closeNoteOv(){document.getElementById('note-ov').classList.remove('open');editNote=null;}
-function saveNote(){const t=document.getElementById('n-t').value.trim(),b=document.getElementById('n-b').value.trim();if(!t||!b){alert('Title and content required.');return;}const d=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});const n={id:editNote||(notes.length?Math.max(...notes.map(x=>x.id))+1:1),title:t,cat:document.getElementById('n-c').value,body:b,date:d};if(editNote){const i=notes.findIndex(x=>x.id===editNote);notes[i]=n;}else notes.push(n);saveNotes();closeNoteOv();renderJournal();}
-function delNote(id){if(!isAdmin)return;if(!confirm('Delete note?'))return;notes=notes.filter(x=>x.id!==id);saveNotes();renderJournal();}
+async function saveNote(){const t=document.getElementById('n-t').value.trim(),b=document.getElementById('n-b').value.trim();if(!t||!b){alert('Title and content required.');return;}const d=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});const n={id:editNote||(notes.length?Math.max(...notes.map(x=>x.id))+1:1),title:t,cat:document.getElementById('n-c').value,body:b,date:d};if(editNote){const i=notes.findIndex(x=>x.id===editNote);notes[i]=n;}else notes.push(n);await saveNotes();closeNoteOv();renderJournal();}
+async function delNote(id){if(!isAdmin)return;if(!confirm('Delete note?'))return;notes=notes.filter(x=>x.id!==id);await saveNotes();renderJournal();}
 
 /* CERTS */
 const DC=[{id:1,name:'B.Sc. Medical Engineering',issuer:'Your University',status:'done',date:'June 2025',file:null},{id:2,name:'ISO 13485:2016 Awareness',issuer:'Add issuer',status:'plan',date:'Target: 2025',file:null},{id:3,name:'IEC 62353 Electrical Safety',issuer:'Add issuer',status:'plan',date:'Target: 2025',file:null}];
 let certs=[],editCert=null;
-function loadCerts(){try{const s=localStorage.getItem('me_certs2');certs=s?JSON.parse(s):JSON.parse(JSON.stringify(DC));}catch(e){certs=JSON.parse(JSON.stringify(DC));}}
-function saveCerts(){try{localStorage.setItem('me_certs2',JSON.stringify(certs));}catch(e){}}
+async function loadCerts(){certs=await storeGetJSON(STORE_KEYS.certs,JSON.parse(JSON.stringify(DC)));}
+async function saveCerts(){await storeSet(STORE_KEYS.certs,certs);}
 function renderCerts(){const g=document.getElementById('ceg'),sl={done:'Completed',prog:'In progress',plan:'Planned'},sc={done:'csd',prog:'csp',plan:'csn'};let h=certs.map(c=>`<div class="cec"><div style="font-size:26px;margin-bottom:7px">🏅</div><div class="cen">${c.name}</div><div class="cei">${c.issuer}</div><span class="ces ${sc[c.status]}">${sl[c.status]}</span><div class="ced">${c.date}</div>${c.file?`<a class="cefl" href="${c.file}" download="${c.name}">📎 View certificate</a>`:''} ${isAdmin?`<div style="display:flex;gap:5px;margin-top:8px"><button class="be" onclick="openCertOv(${c.id})">Edit</button><button class="bdl" onclick="delCert(${c.id})">Delete</button></div>`:''}</div>`).join('');if(isAdmin)h+=`<div class="ceadd" onclick="openCertOv()"><span style="font-size:22px">+</span><span>Add certification</span></div>`;g.innerHTML=h;}
 function openCertOv(id=null){if(!isAdmin)return;editCert=id;const c=id?certs.find(x=>x.id===id):null;document.getElementById('cert-mt').textContent=c?'Edit':'Add certification';document.getElementById('c-n').value=c?c.name:'';document.getElementById('c-i').value=c?c.issuer:'';document.getElementById('c-s').value=c?c.status:'done';document.getElementById('c-d').value=c?c.date:'';document.getElementById('c-f').value='';document.getElementById('cert-ov').classList.add('open');}
 function closeCertOv(){document.getElementById('cert-ov').classList.remove('open');editCert=null;}
-function saveCert(){const nm=document.getElementById('c-n').value.trim();if(!nm){alert('Name required.');return;}const fl=document.getElementById('c-f');const fin=fd=>{const c={id:editCert||(certs.length?Math.max(...certs.map(x=>x.id))+1:1),name:nm,issuer:document.getElementById('c-i').value,status:document.getElementById('c-s').value,date:document.getElementById('c-d').value,file:fd||null};if(editCert){const i=certs.findIndex(x=>x.id===editCert);if(!c.file&&certs[i].file)c.file=certs[i].file;certs[i]=c;}else certs.push(c);saveCerts();closeCertOv();renderCerts();};if(fl.files[0]){const r=new FileReader();r.onload=ev=>fin(ev.target.result);r.readAsDataURL(fl.files[0]);}else fin(null);}
-function delCert(id){if(!isAdmin)return;if(!confirm('Delete?'))return;certs=certs.filter(x=>x.id!==id);saveCerts();renderCerts();}
+function saveCert(){const nm=document.getElementById('c-n').value.trim();if(!nm){alert('Name required.');return;}const fl=document.getElementById('c-f');const fin=async fd=>{const c={id:editCert||(certs.length?Math.max(...certs.map(x=>x.id))+1:1),name:nm,issuer:document.getElementById('c-i').value,status:document.getElementById('c-s').value,date:document.getElementById('c-d').value,file:fd||null};if(editCert){const i=certs.findIndex(x=>x.id===editCert);if(!c.file&&certs[i].file)c.file=certs[i].file;certs[i]=c;}else certs.push(c);await saveCerts();closeCertOv();renderCerts();};if(fl.files[0]){const r=new FileReader();r.onload=ev=>fin(ev.target.result);r.readAsDataURL(fl.files[0]);}else fin(null);}
+async function delCert(id){if(!isAdmin)return;if(!confirm('Delete?'))return;certs=certs.filter(x=>x.id!==id);await saveCerts();renderCerts();}
+
+/* CONTACT */
+const DC_CONTACT={email:'your@email.com',linkedin:'https://linkedin.com/in/yourprofile',location:'Your city, Country',github:'https://github.com/sidimuhammed',phone:'',tagline:'Open to entry-level roles in medical device engineering, clinical engineering, and R&D.',note:'Open to opportunities in medical device engineering, clinical engineering, and R&D. Always happy to connect with engineers and clinicians in the field.'};
+let contactInfo={};
+async function loadContact(){contactInfo=await storeGetJSON(STORE_KEYS.contact,{...DC_CONTACT});}
+async function saveContactData(){await storeSet(STORE_KEYS.contact,contactInfo);}
+function renderContact(){
+  const c=contactInfo;
+  document.getElementById('contact-tagline').textContent=c.tagline||DC_CONTACT.tagline;
+  document.getElementById('contact-note').textContent=c.note||DC_CONTACT.note;
+  const items=[
+    {icon:'✉️',label:'Email',val:c.email||DC_CONTACT.email,href:`mailto:${c.email||DC_CONTACT.email}`},
+    {icon:'💼',label:'LinkedIn',val:(c.linkedin||DC_CONTACT.linkedin).replace('https://',''),href:c.linkedin||DC_CONTACT.linkedin,target:'_blank'},
+    {icon:'📍',label:'Location',val:c.location||DC_CONTACT.location,href:'#'},
+    {icon:'🐙',label:'GitHub',val:(c.github||DC_CONTACT.github).replace('https://',''),href:c.github||DC_CONTACT.github,target:'_blank'},
+  ];
+  if(c.phone)items.push({icon:'📞',label:'Phone',val:c.phone,href:`tel:${c.phone}`});
+  document.getElementById('contact-grid').innerHTML=items.map(i=>`<a class="cca" href="${i.href}"${i.target?` target="${i.target}"`:''}><div class="ccai">${i.icon}</div><div class="ccal">${i.label}</div><div class="ccav">${i.val}</div></a>`).join('');
+}
+function openContactEdit(){
+  const c=contactInfo;
+  document.getElementById('ct-email').value=c.email||'';
+  document.getElementById('ct-linkedin').value=c.linkedin||'';
+  document.getElementById('ct-location').value=c.location||'';
+  document.getElementById('ct-github').value=c.github||'';
+  document.getElementById('ct-phone').value=c.phone||'';
+  document.getElementById('ct-tagline').value=c.tagline||'';
+  document.getElementById('ct-note').value=c.note||'';
+  document.getElementById('contact-ov').classList.add('open');
+}
+function closeContactEdit(){document.getElementById('contact-ov').classList.remove('open');}
+async function saveContactEdit(){
+  contactInfo={
+    email:document.getElementById('ct-email').value.trim()||DC_CONTACT.email,
+    linkedin:document.getElementById('ct-linkedin').value.trim()||DC_CONTACT.linkedin,
+    location:document.getElementById('ct-location').value.trim()||DC_CONTACT.location,
+    github:document.getElementById('ct-github').value.trim()||DC_CONTACT.github,
+    phone:document.getElementById('ct-phone').value.trim(),
+    tagline:document.getElementById('ct-tagline').value.trim()||DC_CONTACT.tagline,
+    note:document.getElementById('ct-note').value.trim()||DC_CONTACT.note,
+  };
+  await saveContactData();
+  closeContactEdit();
+  renderContact();
+}
 
 /* CLOSE ON OUTSIDE CLICK */
-['dev-ov','note-ov','proj-ov','cert-ov','creds-ov'].forEach(id=>document.getElementById(id).addEventListener('click',e=>{if(e.target===document.getElementById(id))document.getElementById(id).classList.remove('open');}));
+['dev-ov','note-ov','proj-ov','cert-ov','creds-ov','contact-ov'].forEach(id=>document.getElementById(id).addEventListener('click',e=>{if(e.target===document.getElementById(id))document.getElementById(id).classList.remove('open');}));
 
 /* FOOTER */
 document.getElementById('footer').textContent=`© ${new Date().getFullYear()} Sidi Mohamed Sidi el Mokhtar · Medical Engineer · github.com/sidimuhammed`;
 
 /* INIT */
-loadDevs();loadProjs();loadNotes();loadCerts();loadSaved();
+async function init(){
+  await Promise.all([loadDevs(),loadProjs(),loadNotes(),loadCerts(),loadContact()]);
+  await loadSaved();
+  renderDevList();updateDCount();renderProj();renderJournal();renderCerts();renderContact();
+}
+init();
 </script>
 </body>
 </html>
