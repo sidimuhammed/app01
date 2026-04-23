@@ -755,11 +755,39 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:14px
 </div>
 
 <script>
-/* ── STORAGE HELPERS ── */
+/* ── SUPABASE STORAGE (cross-device sync) ── */
+const SB_URL='https://uxyvdtcqxolgkqheuvzt.supabase.co';
+const SB_KEY='sb_publishable_IMCJegMxosQ_7hvhJAFAEA_A_hM67l5';
+const SB_HEADERS={'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY};
 const STORE_KEYS={notes:'me_notes2',projs:'me_projs2',devs:'me_devs4',certs:'me_certs2',contact:'me_contact',photo:'me_photo',cv:'me_cv',cv_n:'me_cv_n',creds_u:'me_u',creds_p:'me_p',callog:'me_callog'};
-async function storeSet(key,val){try{if(window.storage){await window.storage.set(key,typeof val==='string'?val:JSON.stringify(val));}else{localStorage.setItem(key,typeof val==='string'?val:JSON.stringify(val));}}catch(e){localStorage.setItem(key,typeof val==='string'?val:JSON.stringify(val));}}
-async function storeGet(key){try{if(window.storage){const r=await window.storage.get(key);return r?r.value:null;}else{return localStorage.getItem(key);}}catch(e){return localStorage.getItem(key);}}
-async function storeGetJSON(key,fallback){const v=await storeGet(key);try{return v?JSON.parse(v):fallback;}catch(e){return fallback;}}
+
+async function storeSet(key,val){
+  const value=typeof val==='string'?val:JSON.stringify(val);
+  try{
+    const res=await fetch(`${SB_URL}/rest/v1/portfolio_data?key=eq.${encodeURIComponent(key)}`,{method:'GET',headers:SB_HEADERS});
+    const existing=await res.json();
+    if(existing&&existing.length>0){
+      await fetch(`${SB_URL}/rest/v1/portfolio_data?key=eq.${encodeURIComponent(key)}`,{method:'PATCH',headers:{...SB_HEADERS,'Prefer':'return=minimal'},body:JSON.stringify({value,updated_at:new Date().toISOString()})});
+    }else{
+      await fetch(`${SB_URL}/rest/v1/portfolio_data`,{method:'POST',headers:{...SB_HEADERS,'Prefer':'return=minimal'},body:JSON.stringify({key,value})});
+    }
+    localStorage.setItem(key,value);
+  }catch(e){localStorage.setItem(key,value);}
+}
+
+async function storeGet(key){
+  try{
+    const res=await fetch(`${SB_URL}/rest/v1/portfolio_data?key=eq.${encodeURIComponent(key)}&select=value`,{method:'GET',headers:SB_HEADERS});
+    const data=await res.json();
+    if(data&&data.length>0){localStorage.setItem(key,data[0].value);return data[0].value;}
+    return localStorage.getItem(key);
+  }catch(e){return localStorage.getItem(key);}
+}
+
+async function storeGetJSON(key,fallback){
+  const v=await storeGet(key);
+  try{return v?JSON.parse(v):fallback;}catch(e){return fallback;}
+}
 
 /* ── TOAST ── */
 function toast(msg,type='success'){const t=document.getElementById('toast');const el=document.createElement('div');el.className=`toast-item ${type}`;el.textContent=msg;t.appendChild(el);setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),200);},2200);}
