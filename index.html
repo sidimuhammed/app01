@@ -549,42 +549,159 @@ body.dark .jcb-collapsed::after{background:linear-gradient(transparent,var(--sur
   .hero-stats{gap:14px;}
   .hstat-n{font-size:22px;}
 }
+
+/* ═══════════════════════════════════════════
+   NEW LAYOUT SKIN — sidebar + topbar
+   All original styles preserved below
+   ═══════════════════════════════════════════ */
+
+/* Reset original nav */
+#main-nav, .mmenu { display: none !important; }
+
+/* Layout shell */
+body { display: flex; min-height: 100vh; overflow-x: hidden; }
+
+/* Sidebar */
+#sidebar {
+  width: 212px; min-width: 212px; height: 100vh;
+  position: sticky; top: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow-y: auto; z-index: 100;
+  transition: width .2s;
+}
+.sb-logo {
+  padding: 18px 16px 14px;
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.sb-mark {
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--accent); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: 13px; flex-shrink: 0;
+}
+.sb-name { font-size: 13px; font-weight: 500; line-height: 1.3; }
+.sb-name span { display: block; font-size: 11px; color: var(--text3); font-weight: 400; }
+.sb-section { padding: 10px 10px 4px; }
+.sb-label { font-size: 10px; letter-spacing: .8px; text-transform: uppercase;
+  color: var(--text3); padding: 4px 8px 6px; font-weight: 500; }
+.sb-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 7px 10px; border-radius: 8px;
+  color: var(--text2); font-size: 13px; cursor: pointer;
+  transition: all .15s; margin-bottom: 1px; border: none;
+  background: none; width: 100%; text-align: left;
+  font-family: var(--sans);
+}
+.sb-item:hover { background: var(--surface2); color: var(--text); }
+.sb-item.active { background: var(--al); color: var(--accent); font-weight: 500; }
+.sb-icon { font-size: 15px; flex-shrink: 0; }
+.sb-footer {
+  margin-top: auto; padding: 12px;
+  border-top: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 6px;
+}
+.sb-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px; border-radius: 8px;
+  font-size: 12px; color: var(--text3); cursor: pointer;
+  background: none; border: none; width: 100%;
+  text-align: left; font-family: var(--sans); transition: all .15s;
+}
+.sb-btn:hover { background: var(--surface2); color: var(--text2); }
+.sb-btn.sb-admin-on { background: var(--accent); color: #fff; border-radius: 8px; }
+
+/* Main area */
+.main-wrap {
+  flex: 1; display: flex; flex-direction: column;
+  min-width: 0; overflow-x: hidden;
+}
+
+/* Topbar */
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 50;
+}
+.topbar-title { font-size: 14px; font-weight: 500; color: var(--text); }
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+.tb-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 12px; border-radius: 8px;
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  border: 1px solid var(--border2); background: var(--surface);
+  color: var(--text2); transition: all .15s; font-family: var(--sans);
+}
+.tb-btn:hover { background: var(--surface2); color: var(--text); }
+.tb-btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.tb-btn.primary:hover { opacity: .88; }
+
+/* Page content area */
+.page-content {
+  flex: 1; padding: 24px;
+  overflow-y: auto;
+}
+
+/* Pages now fill the page-content area */
+.page { display: none; }
+.page.active { display: block; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  #sidebar { display: none; }
+  .topbar { padding: 10px 16px; }
+  .page-content { padding: 16px; }
+}
+
 </style>
 </head>
 <body>
 
-<nav id="main-nav">
-  <span class="nlogo" onclick="showPage('home')">Sidi <span>Mohamed</span></span>
-  <div class="nlinks">
-    <button class="nl active" id="nl-home" onclick="showPage('home')">Home</button>
-    <button class="nl" id="nl-devices" onclick="showPage('devices')">Devices</button>
-    <button class="nl" id="nl-tools" onclick="showPage('tools')">Tools</button>
-    <button class="nl" id="nl-callog" onclick="showPage('callog')">Cal. Log</button>
-    <button class="nl" id="nl-projects" onclick="showPage('projects')">Projects</button>
-    <button class="nl" id="nl-journal" onclick="showPage('journal')">Journal</button>
-    <button class="nl" id="nl-learn" onclick="showPage('learn')">🎓 Learn</button>
-    <button class="nl" id="nl-certs" onclick="showPage('certs')">Certs</button>
-    <button class="nl" id="nl-contact" onclick="showPage('contact')">Contact</button>
+<div id="sidebar">
+  <div class="sb-logo">
+    <div class="sb-mark">SM</div>
+    <div class="sb-name">Sidi Mohamed <span>Medical Engineer</span></div>
   </div>
-  <div class="nright">
-    <button class="dm-btn" id="dm-btn" onclick="toggleDark()" title="Toggle dark mode">🌙</button>
-    <button class="admin-btn" id="admin-btn" onclick="handleAdmin()"><span class="lock-icon">🔒</span><span id="admin-btn-txt">Admin</span></button>
-    <button class="hburg" id="hburg" onclick="toggleMenu()"><span></span><span></span><span></span></button>
-  </div>
-</nav>
 
-<div class="mmenu" id="mmenu">
-  <button class="ml active" id="ml-home" onclick="showPage('home');toggleMenu()">🏠 Home</button>
-  <button class="ml" id="ml-devices" onclick="showPage('devices');toggleMenu()">🏥 Devices</button>
-  <button class="ml" id="ml-tools" onclick="showPage('tools');toggleMenu()">⚗️ Tools</button>
-  <button class="ml" id="ml-callog" onclick="showPage('callog');toggleMenu()">📋 Calibration Log</button>
-  <button class="ml" id="ml-projects" onclick="showPage('projects');toggleMenu()">🔬 Projects</button>
-  <button class="ml" id="ml-journal" onclick="showPage('journal');toggleMenu()">✍️ Journal</button>
-  <button class="ml" id="ml-learn" onclick="showPage('learn');toggleMenu()">🎓 Learning Hub</button>
-  <button class="ml" id="ml-certs" onclick="showPage('certs');toggleMenu()">🏅 Certifications</button>
-  <button class="ml" id="ml-contact" onclick="showPage('contact');toggleMenu()">✉️ Contact</button>
+  <div class="sb-section">
+    <div class="sb-label">Main</div>
+    <button class="sb-item active" id="sbl-home" onclick="showPage('home')"><span class="sb-icon">🏠</span> Home</button>
+    <button class="sb-item" id="sbl-devices" onclick="showPage('devices')"><span class="sb-icon">🏥</span> Devices</button>
+    <button class="sb-item" id="sbl-tools" onclick="showPage('tools')"><span class="sb-icon">⚗️</span> Tools</button>
+    <button class="sb-item" id="sbl-callog" onclick="showPage('callog')"><span class="sb-icon">📋</span> Cal. Log</button>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-label">Portfolio</div>
+    <button class="sb-item" id="sbl-projects" onclick="showPage('projects')"><span class="sb-icon">🔬</span> Projects</button>
+    <button class="sb-item" id="sbl-certs" onclick="showPage('certs')"><span class="sb-icon">🏅</span> Certifications</button>
+    <button class="sb-item" id="sbl-journal" onclick="showPage('journal')"><span class="sb-icon">✍️</span> Journal</button>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-label">Learn & Connect</div>
+    <button class="sb-item" id="sbl-learn" onclick="showPage('learn')"><span class="sb-icon">🎓</span> Learning Hub</button>
+    <button class="sb-item" id="sbl-contact" onclick="showPage('contact')"><span class="sb-icon">✉️</span> Contact</button>
+  </div>
+
+  <div class="sb-footer">
+    <button class="sb-btn" onclick="toggleDark()">🌙 Toggle dark mode</button>
+    <button class="sb-btn" id="sb-admin-btn" onclick="handleAdmin()">🔒 <span id="sb-admin-txt">Admin</span></button>
+  </div>
 </div>
-
+<div class="main-wrap">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">Home</div>
+    <div class="topbar-right">
+      <button class="tb-btn" onclick="handleCV()">⬇️ CV</button>
+      <button class="tb-btn primary" onclick="showPage('contact')">✉️ Contact</button>
+    </div>
+  </div>
+  <div class="page-content">
 <div class="abanner" id="abanner">
   🔐 Admin mode active &nbsp;·&nbsp;
   <a onclick="openCreds()">Change credentials</a> &nbsp;·&nbsp;
@@ -1123,7 +1240,38 @@ body.dark .jcb-collapsed::after{background:linear-gradient(transparent,var(--sur
   </div>
 </div>
 
+
+  </div><!-- /page-content -->
+</div><!-- /main-wrap -->
+
 <script>
+
+// ── Sidebar sync (appended by redesign) ──
+const _origShowPage = showPage;
+function showPage(p){
+  _origShowPage(p);
+  // Update sidebar active state
+  document.querySelectorAll('.sb-item').forEach(x=>x.classList.remove('active'));
+  const sbl = document.getElementById('sbl-'+p);
+  if(sbl) sbl.classList.add('active');
+  // Update topbar title
+  const titles={home:'Home',devices:'Device Reference',tools:'Engineering Tools',
+    callog:'Calibration Log',projects:'Projects',journal:'Learning Journal',
+    certs:'Certifications',learn:'Learning Hub',contact:'Contact'};
+  const tt = document.getElementById('topbar-title');
+  if(tt) tt.textContent = titles[p]||p;
+}
+// Sync admin button in sidebar
+const _origApplyAdmin = typeof applyAdmin === 'function' ? applyAdmin : null;
+function applyAdmin(){
+  if(_origApplyAdmin) _origApplyAdmin();
+  const btn = document.getElementById('sb-admin-btn');
+  const txt = document.getElementById('sb-admin-txt');
+  const isOn = document.getElementById('abanner')?.style.display !== 'none' && document.getElementById('abanner')?.style.display !== '';
+  if(btn) btn.classList.toggle('sb-admin-on', isOn);
+  if(txt) txt.textContent = isOn ? 'Log out' : 'Admin';
+}
+
 /* ── SUPABASE STORAGE (cross-device sync) ── */
 const SB_URL='https://uxyvdtcqxolgkqheuvzt.supabase.co';
 const SB_KEY='sb_publishable_IMCJegMxosQ_7hvhJAFAEA_A_hM67l5';
