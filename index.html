@@ -1020,7 +1020,7 @@ body { display: flex; min-height: 100vh; overflow-x: hidden; }
       <span></span><span></span><span></span>
     </button>
     <div class="topbar-title" id="topbar-title">Home</div>
-    <div class="topbar-right"><button class="tb-btn" title="Print or save as PDF">🖨️ Print</button>
+    <div class="topbar-right">
       <button class="tb-btn" onclick="handleCV()">⬇️ CV</button>
       <button class="tb-btn primary" onclick="showPage(&#39;contact&#39;)">✉️ Contact</button>
     </div>
@@ -1064,7 +1064,7 @@ body { display: flex; min-height: 100vh; overflow-x: hidden; }
   <div class="sstrip">
     <div class="si">
       <div class="slbl">Technical skills</div>
-      <div class="sgrid" id="skills-grid"><div class="scard reveal visible" data-idx="0" style="transition-delay: 220ms;">
+      <div class="sgrid" id="skills-grid"><div class="scard reveal" data-idx="0" style="transition-delay: 220ms;">
       <div class="sct" contenteditable="false" onblur="updateSkillField(0,&#39;title&#39;,this.textContent)">Design &amp; modelling</div>
       <div class="scl" contenteditable="false" onblur="updateSkillField(0,&#39;sub&#39;,this.textContent)">SolidWorks · AutoCAD · Fusion 360</div>
       <div class="skill-bar-wrap">
@@ -1074,7 +1074,7 @@ body { display: flex; min-height: 100vh; overflow-x: hidden; }
       </div>
       <div class="skill-edit-hint">Click dots to rate · Click text to edit</div>
       
-    </div><div class="scard reveal visible" data-idx="1" style="transition-delay: 275ms;">
+    </div><div class="scard reveal" data-idx="1" style="transition-delay: 275ms;">
       <div class="sct" contenteditable="false" onblur="updateSkillField(1,&#39;title&#39;,this.textContent)">Software &amp; data</div>
       <div class="scl" contenteditable="false" onblur="updateSkillField(1,&#39;sub&#39;,this.textContent)">MATLAB · Python · LabVIEW</div>
       <div class="skill-bar-wrap">
@@ -1084,7 +1084,7 @@ body { display: flex; min-height: 100vh; overflow-x: hidden; }
       </div>
       <div class="skill-edit-hint">Click dots to rate · Click text to edit</div>
       
-    </div><div class="scard reveal visible" data-idx="2" style="transition-delay: 0ms;">
+    </div><div class="scard reveal" data-idx="2" style="transition-delay: 0ms;">
       <div class="sct" contenteditable="false" onblur="updateSkillField(2,&#39;title&#39;,this.textContent)">Standards</div>
       <div class="scl" contenteditable="false" onblur="updateSkillField(2,&#39;sub&#39;,this.textContent)">ISO 13485 · ISO 14971 · IEC 60601</div>
       <div class="skill-bar-wrap">
@@ -1094,7 +1094,7 @@ body { display: flex; min-height: 100vh; overflow-x: hidden; }
       </div>
       <div class="skill-edit-hint">Click dots to rate · Click text to edit</div>
       
-    </div><div class="scard reveal visible" data-idx="3" style="transition-delay: 55ms;">
+    </div><div class="scard reveal" data-idx="3" style="transition-delay: 55ms;">
       <div class="sct" contenteditable="false" onblur="updateSkillField(3,&#39;title&#39;,this.textContent)">Devices</div>
       <div class="scl" contenteditable="false" onblur="updateSkillField(3,&#39;sub&#39;,this.textContent)">ECG · Ventilators · Patient monitors · Infusion pumps</div>
       <div class="skill-bar-wrap">
@@ -1104,7 +1104,7 @@ body { display: flex; min-height: 100vh; overflow-x: hidden; }
       </div>
       <div class="skill-edit-hint">Click dots to rate · Click text to edit</div>
       
-    </div><div class="scard reveal visible" data-idx="4" style="transition-delay: 110ms;">
+    </div><div class="scard reveal" data-idx="4" style="transition-delay: 110ms;">
       <div class="sct" contenteditable="false" onblur="updateSkillField(4,&#39;title&#39;,this.textContent)">Lab &amp; testing</div>
       <div class="scl" contenteditable="false" onblur="updateSkillField(4,&#39;sub&#39;,this.textContent)">Oscilloscopes · Multimeters · IEC 62353</div>
       <div class="skill-bar-wrap">
@@ -1114,7 +1114,7 @@ body { display: flex; min-height: 100vh; overflow-x: hidden; }
       </div>
       <div class="skill-edit-hint">Click dots to rate · Click text to edit</div>
       
-    </div><div class="scard reveal visible" data-idx="5" style="transition-delay: 165ms;">
+    </div><div class="scard reveal" data-idx="5" style="transition-delay: 165ms;">
       <div class="sct" contenteditable="false" onblur="updateSkillField(5,&#39;title&#39;,this.textContent)">Languages</div>
       <div class="scl" contenteditable="false" onblur="updateSkillField(5,&#39;sub&#39;,this.textContent)">Arabic (native) · French · English (professional)</div>
       <div class="skill-bar-wrap">
@@ -1133,18 +1133,18 @@ body { display: flex; min-height: 100vh; overflow-x: hidden; }
       <div>
         <div class="abt">Education &amp; experience</div>
         <ul class="tl">
-          <li class="reveal visible" style="transition-delay: 220ms;"><span class="tly">2025</span><span class="tlt"><strong>B.Sc. Medical Engineering</strong> — graduated</span></li>
-          <li class="reveal visible" style="transition-delay: 275ms;"><span class="tly">2024</span><span class="tlt"><strong>Internship</strong> — biomedical device maintenance &amp; testing</span></li>
-          <li class="reveal visible" style="transition-delay: 0ms;"><span class="tly">2025</span><span class="tlt"><strong>Thesis</strong> — update with your thesis title</span></li>
+          <li class="reveal" style="transition-delay: 220ms;"><span class="tly">2025</span><span class="tlt"><strong>B.Sc. Medical Engineering</strong> — graduated</span></li>
+          <li class="reveal" style="transition-delay: 275ms;"><span class="tly">2024</span><span class="tlt"><strong>Internship</strong> — biomedical device maintenance &amp; testing</span></li>
+          <li class="reveal" style="transition-delay: 0ms;"><span class="tly">2025</span><span class="tlt"><strong>Thesis</strong> — update with your thesis title</span></li>
         </ul>
       </div>
       <div>
         <div class="abt">Interests &amp; goals</div>
         <ul class="tl">
-          <li class="reveal visible" style="transition-delay: 55ms;"><span class="tly">PPM</span><span class="tlt">Planned preventive maintenance &amp; CMMS workflows</span></li>
-          <li class="reveal visible" style="transition-delay: 110ms;"><span class="tly">CAL</span><span class="tlt">Precision calibration &amp; metrological traceability</span></li>
-          <li class="reveal visible" style="transition-delay: 165ms;"><span class="tly">QA</span><span class="tlt">Regulatory affairs &amp; ISO 13485 quality systems</span></li>
-          <li class="reveal visible" style="transition-delay: 220ms;"><span class="tly">CE</span><span class="tlt">Clinical engineering &amp; hospital technology management</span></li>
+          <li class="reveal" style="transition-delay: 55ms;"><span class="tly">PPM</span><span class="tlt">Planned preventive maintenance &amp; CMMS workflows</span></li>
+          <li class="reveal" style="transition-delay: 110ms;"><span class="tly">CAL</span><span class="tlt">Precision calibration &amp; metrological traceability</span></li>
+          <li class="reveal" style="transition-delay: 165ms;"><span class="tly">QA</span><span class="tlt">Regulatory affairs &amp; ISO 13485 quality systems</span></li>
+          <li class="reveal" style="transition-delay: 220ms;"><span class="tly">CE</span><span class="tlt">Clinical engineering &amp; hospital technology management</span></li>
         </ul>
       </div>
     </div>
@@ -1856,7 +1856,7 @@ body { display: flex; min-height: 100vh; overflow-x: hidden; }
     <div class="pmo-icon">🔐</div>
     <h2>Admin access</h2>
     <p>Enter your credentials to unlock editing.</p>
-    <input class="fi" type="text" id="pu" placeholder="Username" style="text-align:center;margin-bottom:8px">
+    <input class="fi" type="text" id="pu" placeholder="Username" style="text-align:center;margin-bottom:8px" onkeydown="if(event.key===&#39;Enter&#39;)doPin()">
     <input class="pi" type="password" id="pp" placeholder="••••••" maxlength="30" onkeydown="if(event.key===&#39;Enter&#39;)doPin()">
     <div class="perr" id="perr"></div>
     <div style="display:flex;gap:7px;justify-content:center;margin-top:14px">
@@ -2881,17 +2881,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
   // Append to page-content
   const pc = document.querySelector('.page-content');
   if(pc) pc.appendChild(footer);
-
-  // 4. Print / PDF export button — inject into topbar
-  const tbRight = document.querySelector('.topbar-right');
-  if(tbRight){
-    const printBtn = document.createElement('button');
-    printBtn.className = 'tb-btn';
-    printBtn.title = 'Print or save as PDF';
-    printBtn.innerHTML = '🖨️ Print';
-    printBtn.onclick = () => window.print();
-    tbRight.insertBefore(printBtn, tbRight.firstChild);
-  }
 
   // 5. Smooth reveal animation for page cards on page switch
   const style = document.createElement('style');
